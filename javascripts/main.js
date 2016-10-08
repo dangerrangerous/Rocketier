@@ -1,16 +1,16 @@
 var Colors =
 {
-    darkBrown: (35, 25, 15),
-    brown: (165, 42, 42),
-    red: (247, 44, 37),
-    yellow: (249, 199, 100),
-    blue: (169, 229, 187),
-    white: (253, 250, 212),
-    pink: (186, 85, 211),
+    darkBrown: 0x23190F,
+    brown: 0xA52A2A,
+    red: 0xF72C25,
+    yellow: 0xF9C764,
+    blue: 0xA9E5BB,
+    white: 0xFAFAC8,
+    pink: 0xBA55D3,
 };
 
 // ThreeJS setup variables
- var scene, camera, fieldOfView, aspectRation, nearPlane, farPlane, 
+ var scene, camera, fieldOfView, aspectRatio, nearPlane, farPlane, 
      renderer, container;
 
 // Screen and mouse 
@@ -148,8 +148,10 @@ var Rocket = function()
     var geomTailFinSides = new THREE.BoxGeometry(15, 5, 110, 1, 1, 1);
     var matTailFinSides = new THREE.MeshPhonMaterial({color: Colors.red, shading: THREE.FlatShading});
     var tailFinSides = new THREE.Mesh(geomTailFinSides, matTailFin);
-    tailfinSides.position.set(-40, 0, 0);
-    
+    tailFinSides.position.set(-40, 0, 0);
+    tailFinSides.castShadow = true;
+    tailFinSides.receiveShadow = true;
+    this.mesh.add(tailFinSides);
 
     // antennae base thing idk
     var geomAntennae = new THREE.BoxGeometry(20, 10, 10, 1, 1, 1);
@@ -187,7 +189,7 @@ Sky = function()
     for(var i = 0; i < this.nClouds; i++)
     {
         var c = new Cloud();
-        
+        this.clouds.push(c);
         // set the rotation and position of each cloud
         var a = stepAngle * i;
         var h = 750 + Math.random() * 200;
@@ -226,7 +228,7 @@ Sea = function()
     {
         color: Colors.blue,
         transparent:true,
-        opacit:.6,
+        opacity:.6,
         shading:THREE.FlatShading,
     });
 
@@ -242,7 +244,7 @@ Cloud = function()
 {
     // create empty container to hold the different parts of the cloud
     this.mesh = new THREE.Object3D();
-
+    this.mesh.name = "cloud";
     // create a cube geometry to be duplicated
     var geometry = new THREE.BoxGeometry(20, 20, 20);
 
@@ -256,7 +258,7 @@ Cloud = function()
     var nBlocs = 3 + Math.floor(Math.random() * 3);
     for(var i = 0; i < nBlocs; i++)
     {
-        var m = new THREE.mesh(geometry, material);
+        var m = new THREE.mesh(geometry.clone(), material);
         // set position and rotation of each cube randomly
         m.position.x = i*15;
         m.position.y = Math.random() * 10;
@@ -320,6 +322,7 @@ function loop()
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
 }
+
 function updateRocket()
 {
     // normalize rocket position, play with these values
