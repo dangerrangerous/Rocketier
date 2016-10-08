@@ -110,7 +110,7 @@ scene.add(shadowLight);
 var Rocket = function()
 {
     this.mesh = new THREE.Object3D();
-    this.mehs.name = "rocket";
+    this.mesh.name = "rocket";
     // create fuselage
     var geomFuselage = new THREE.BoxGeometry(60, 50, 50, 1, 1, 1);
     var matFuselage = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
@@ -134,11 +134,11 @@ var Rocket = function()
     var tailFinTop = new THREE.Mesh(geomTailFin, matTailFin);
     var tailFinBot = new THREE.Mesh(geomTailFin, matTailFin);
     tailFinTop.position.set(-40, 40, 0);
-    tailfinTop.castShadow = true;
+    tailFinTop.castShadow = true;
     tailFinTop.receiveShadow = true;
 
     tailFinBot.position.set(-40, -40, 0);
-    tailfinBot.castShadow = true;
+    tailFinBot.castShadow = true;
     tailFinBot.receiveShadow = true;
     this.mesh.add(tailFinTop);
     this.mesh.add(tailFinTop);
@@ -146,31 +146,32 @@ var Rocket = function()
     // side tail fins (turns out we can pass the mesh through the fuselage no problem)
     // could do this for top and bottom tail fins as well
     var geomTailFinSides = new THREE.BoxGeometry(15, 5, 110, 1, 1, 1);
-    var matTailFinSides = new THREE.MeshPhonMaterial({color: Colors.red, shading: THREE.FlatShading});
+    var matTailFinSides = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
     var tailFinSides = new THREE.Mesh(geomTailFinSides, matTailFin);
     tailFinSides.position.set(-40, 0, 0);
     tailFinSides.castShadow = true;
     tailFinSides.receiveShadow = true;
     this.mesh.add(tailFinSides);
-
+/**
     // antennae base thing idk
     var geomAntennae = new THREE.BoxGeometry(20, 10, 10, 1, 1, 1);
-    var matAntenae = new THREE.MeshPhongMaterial({color: Colors.brown, shading: THREE.FlatShading});
+    var matAntennae = new THREE.MeshPhongMaterial({color: Colors.brown, shading: THREE.FlatShading});
     this.antennae = new THREE.Mesh(geomAntennae, matAntennae);
     this.antennae.castShadow = true;
     this.antennae.receiveShadow = true;
 
     // antennae, probably replace with something more like a payload
-    var geomTip = new THREE.BoxGeometry(50, 2, 2, 1, 1, 1);
+    var geomTip = new THREE.BoxGeometry(50, 8, 2, 1, 1, 1);
     var matTip = new THREE.MeshPhongMaterial({color: Colors.darkBrown, shading: THREE.FlatShading});
 
-    var comArray = new THREE.mesh(geomTip, geomMat);
+    var comArray = new THREE.Mesh(geomTip, matTip);
     comArray.position.set(8, 0, 0);
     comArray.castShadow = true;
     comArray.receiveShadow = true;
     this.antennae.add(comArray);
     this.antennae.position.set(50, 0, 0);
     this.mesh.add(this.comArray);
+    */
 };
 
 // Let there be a place for the vehicle
@@ -181,7 +182,7 @@ Sky = function()
 
     // choose a number of clouds to be scattered in teh sky
     this.nClouds = 20;
-
+    this.clouds = [];
     // distribute clouds according to uniform angles
     var stepAngle = Math.PI * 2 / this.nClouds;
 
@@ -221,7 +222,7 @@ Sea = function()
     var geometry = new THREE.CylinderGeometry(600, 600, 800, 40, 10);
 
     // rotate the geometry on teh x axis
-    geometry.applyMatrix(new THREE.Matrix4().makeRotation(-Math.PI/2));
+    geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI/2));
 
     // create material
     var material = new THREE.MeshPhongMaterial(
@@ -249,7 +250,7 @@ Cloud = function()
     var geometry = new THREE.BoxGeometry(20, 20, 20);
 
     // create a material
-    var mat = new THREE.MeshPhongMaterial(
+    var material = new THREE.MeshPhongMaterial(
         {
         color:Colors.white,
         });
@@ -258,7 +259,7 @@ Cloud = function()
     var nBlocs = 3 + Math.floor(Math.random() * 3);
     for(var i = 0; i < nBlocs; i++)
     {
-        var m = new THREE.mesh(geometry.clone(), material);
+        var m = new THREE.Mesh(geometry.clone(), material);
         // set position and rotation of each cube randomly
         m.position.x = i*15;
         m.position.y = Math.random() * 10;
@@ -316,7 +317,7 @@ function loop()
      updateRocket();
     // rotate some meshes        
     sea.mesh.rotation.z += .005;
-    sky.mesh.rotation.z += 0.1;
+    sky.mesh.rotation.z += 0.01;
    
     // render the scene
     renderer.render(scene, camera);
@@ -326,8 +327,8 @@ function loop()
 function updateRocket()
 {
     // normalize rocket position, play with these values
-    var targetX = normalize(mousePos.x, -1, 1, -100, 100);
-    var targetY = normalize(mousePos.y, -1, 1, 25, 175);
+    var targetX = normalize(mousePos.x, -.75, .75, -100, 100);
+    var targetY = normalize(mousePos.y, -.75, .75, 25, 175);
     
     // update rocket's position
     rocket.mesh.position.y = targetY;
