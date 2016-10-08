@@ -7,6 +7,7 @@ var Colors =
     blue: 0xA9E5BB,
     white: 0xFAFAC8,
     pink: 0xBA55D3,
+    grey: 0xA9A9A9,
 };
 
 // ThreeJS setup variables
@@ -113,59 +114,106 @@ var Rocket = function()
     this.mesh.name = "rocket";
     // create fuselage
     var geomFuselage = new THREE.BoxGeometry(60, 50, 50, 1, 1, 1);
-    var matFuselage = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
+    var matFuselage = new THREE.MeshPhongMaterial({color: Colors.white, shading: THREE.FlatShading});
     var fuselage = new THREE.Mesh(geomFuselage, matFuselage);
     fuselage.castShadow = true;
     fuselage.receiveShadow = true;
     this.mesh.add(fuselage);
-
+    
+    // create nose cone
+    var geomNoseCone = new THREE.BoxGeometry(20, 50, 50, 1, 1, 1);
+    var matNoseCone = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
+    var noseCone = new THREE.Mesh(geomNoseCone, matNoseCone);
+    noseCone.position.x = 30;
+    noseCone.castShadow = true;
+    noseCone.receiveShadow = true;
+    this.mesh.add(noseCone);
+    
+    var geomNoseCone2 = new THREE.BoxGeometry(20, 30, 30, 1, 1, 1);
+    var matNoseCone2 = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
+    var noseCone2 = new THREE.Mesh(geomNoseCone2, matNoseCone2);
+    noseCone2.position.x = 50;
+    noseCone2.castShadow = true;
+    noseCone2.receiveShadow = true;
+    this.mesh.add(noseCone2);
+    
+    var geomNoseCone3 = new THREE.BoxGeometry(20, 15, 15, 1, 1, 1);
+    var matNoseCone3 = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
+    var noseCone3 = new THREE.Mesh(geomNoseCone3, matNoseCone3);
+    noseCone3.position.x = 60;
+    noseCone3.castShadow = true;
+    noseCone3.receiveShadow = true;
+    this.mesh.add(noseCone3);
+    
     // create Boosters
     var geomBoosters = new THREE.BoxGeometry(20, 55, 55, 1, 1, 1);
-    var matBoosters = new THREE.MeshPhongMaterial({color: Colors.white, shading: THREE.FlatShading});
+    var matBoosters = new THREE.MeshPhongMaterial({color: Colors.darkBrown, shading: THREE.FlatShading});
     var boosters = new THREE.Mesh(geomBoosters, matBoosters);
     boosters.position.x = -40;
     boosters.castShadow = true;
     boosters.receiveShadow = true;
     this.mesh.add(boosters);
 
+    var geomThrusters = new THREE.BoxGeometry(10, 25, 25, 1, 1, 1);
+    var matThrusters = new THREE.MeshPhongMaterial({color: Colors.grey, shading: THREE.FlatShading});
+    var thrusters = new THREE.Mesh(geomThrusters, matThrusters);
+    thrusters.position.x = -50;
+    thrusters.castShadow = true;
+    thrusters.receiveShadow = true;
+    this.mesh.add(thrusters);
+
     // create tail fins
-    var geomTailFin = new THREE.BoxGeometry(15, 110, 5, 1, 1, 1);
+    var geomTailFin = new THREE.BoxGeometry(15, 50, 5, 1, 1, 1);
     var matTailFin = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
     var tailFinTop = new THREE.Mesh(geomTailFin, matTailFin);
-    tailFinTop.position.set(-40, 0, 0);
+    tailFinTop.position.set(-38, 20, 0);
+    tailFinTop.rotation.z = 20;
     tailFinTop.castShadow = true;
     tailFinTop.receiveShadow = true;
     this.mesh.add(tailFinTop);
+    
+    var tailFinBot = new THREE.Mesh(geomTailFin, matTailFin);
+    tailFinBot.position.set(-38, -20, 0);
+    tailFinBot.rotation.z = -20;
+    tailFinBot.castShadow = true;
+    tailFinBot.receiveShadow = true;
+    this.mesh.add(tailFinBot);
 
-    // side tail fins (turns out we can pass the mesh through the fuselage no problem)
-    // could do this for top and bottom tail fins as well
-    var geomTailFinSides = new THREE.BoxGeometry(15, 5, 110, 1, 1, 1);
+    // create side tail fins 
+    var geomTailFinSides = new THREE.BoxGeometry(15, 5, 50, 1, 1, 1);
     var matTailFinSides = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
     var tailFinSides = new THREE.Mesh(geomTailFinSides, matTailFin);
-    tailFinSides.position.set(-40, 0, 0);
+    tailFinSides.position.set(-38, 0, 20);
+    tailFinSides.rotation.y = -20;
     tailFinSides.castShadow = true;
     tailFinSides.receiveShadow = true;
     this.mesh.add(tailFinSides);
-/**
-    // antennae base thing idk
-    var geomAntennae = new THREE.BoxGeometry(20, 10, 10, 1, 1, 1);
-    var matAntennae = new THREE.MeshPhongMaterial({color: Colors.brown, shading: THREE.FlatShading});
-    this.antennae = new THREE.Mesh(geomAntennae, matAntennae);
-    this.antennae.castShadow = true;
-    this.antennae.receiveShadow = true;
 
-    // antennae, probably replace with something more like a payload
-    var geomTip = new THREE.BoxGeometry(50, 8, 2, 1, 1, 1);
-    var matTip = new THREE.MeshPhongMaterial({color: Colors.darkBrown, shading: THREE.FlatShading});
+    var matTailFinSides = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
+    var tailFinFarSides = new THREE.Mesh(geomTailFinSides, matTailFin);
+    tailFinFarSides.position.set(-38, 0, -20);
+    tailFinFarSides.rotation.y = 20;
+    tailFinFarSides.castShadow = true;
+    tailFinFarSides.receiveShadow = true;
+    this.mesh.add(tailFinFarSides);
 
-    var comArray = new THREE.Mesh(geomTip, matTip);
-    comArray.position.set(8, 0, 0);
-    comArray.castShadow = true;
-    comArray.receiveShadow = true;
-    this.antennae.add(comArray);
-    this.antennae.position.set(50, 0, 0);
-    this.mesh.add(this.comArray);
-    */
+    // create window
+    var geomWindow = new THREE.BoxGeometry(15, 15, 55, 1, 1, 1);
+    var matWindow = new THREE.MeshPhongMaterial({color: Colors.blue, shading: THREE.FlatShading});
+    var window = new THREE.Mesh(geomWindow, matWindow);
+    window.position.x = 5;
+    window.castShadow = true;
+    window.receiveShadow = true;
+    this.mesh.add(window);
+    
+    // create window frame
+    var geomWindowFrame = new THREE.BoxGeometry(17, 17, 52, 1, 1, 1);
+    var matWindowFrame = new THREE.MeshPhongMaterial({color: Colors.darkBrown, shading: THREE.FlatShading});
+    var windowFrame = new THREE.Mesh(geomWindowFrame, matWindowFrame);
+    windowFrame.position.x = 5;
+    windowFrame.castShadow = true;
+    windowFrame.receiveShadow = true;
+    this.mesh.add(windowFrame);
 };
 
 // Let there be a place for the vehicle
@@ -175,7 +223,7 @@ Sky = function()
     this.mesh = new THREE.Object3D();
 
     // choose a number of clouds to be scattered in teh sky
-    this.nClouds = 20;
+    this.nClouds = 30;
     this.clouds = [];
     // distribute clouds according to uniform angles
     var stepAngle = Math.PI * 2 / this.nClouds;
@@ -317,17 +365,30 @@ function loop()
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
 }
+/*
+// TODO:
+ExhaustPlume = function()
+{
+    // this will nuke smoke, need an external function 
+    var plumeGeometry = new THREE.BoxGeometry(20, 20, 20);
+    var plumeMaterial = new THREE.MeshPhongMaterial({colors: Colors.white, shading: THREE.FlatShading});
+    var plume = new THREE.Mesh(plumeGeometry, plumeMaterial);
+    plume.position.x = -40;
+    this.mesh.add(plume);
+} 
+*/
 
 function updateRocket()
 {
     // normalize rocket position, play with these values
-    var targetX = normalize(mousePos.x, -.75, .75, -100, 100);
     var targetY = normalize(mousePos.y, -.75, .75, 25, 175);
+    var targetX = normalize(mousePos.x, -.75, .75, -100, 100);
     
     // update rocket's position
     rocket.mesh.position.y = targetY;
     rocket.mesh.position.x = targetX;
     // TODO: thruster animation goes here
+
 }
 
 function normalize(v, vmin, vmax, tmin, tmax)
