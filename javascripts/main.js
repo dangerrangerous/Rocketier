@@ -129,18 +129,12 @@ var Rocket = function()
     this.mesh.add(boosters);
 
     // create tail fins
-    var geomTailFin = new THREE.BoxGeometry(15, 20, 5, 1, 1, 1);
+    var geomTailFin = new THREE.BoxGeometry(15, 110, 5, 1, 1, 1);
     var matTailFin = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
     var tailFinTop = new THREE.Mesh(geomTailFin, matTailFin);
-    var tailFinBot = new THREE.Mesh(geomTailFin, matTailFin);
-    tailFinTop.position.set(-40, 40, 0);
+    tailFinTop.position.set(-40, 0, 0);
     tailFinTop.castShadow = true;
     tailFinTop.receiveShadow = true;
-
-    tailFinBot.position.set(-40, -40, 0);
-    tailFinBot.castShadow = true;
-    tailFinBot.receiveShadow = true;
-    this.mesh.add(tailFinTop);
     this.mesh.add(tailFinTop);
 
     // side tail fins (turns out we can pass the mesh through the fuselage no problem)
