@@ -107,7 +107,8 @@ scene.add(shadowLight);
 }
 
 // Let there be a vehicle
-// note: we can upload external 3D models
+// note: we can upload external 3D models... programming primitives
+// feels_bad_man.jpg
 var Rocket = function()
 {
     this.mesh = new THREE.Object3D();
@@ -214,7 +215,66 @@ var Rocket = function()
     windowFrame.castShadow = true;
     windowFrame.receiveShadow = true;
     this.mesh.add(windowFrame);
+    
+    // create afterburner
+    // afterburner element
+    var abGeom = new THREE.BoxGeometry(6,6,6);
+    var abMat = new THREE.MeshPhongMaterial({color: Colors.yellow, shading: THREE.FlatShading});
+    var ab = new THREE.Mesh(abGeom, abMat);
+    // align shape of afterburner to it's bottom boundary so it will scale easier
+    ab.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,2,0));
+    
+    // create container for the afterburner
+    var afterburners = new THREE.Object3D();
+    
+    // create a container for the outside burners, these will be animated
+    this.afterburnersOuter = new THREE.Object3D();
+    
+    // create the outside burners and position them on a grid
+    for(var i = 0; i < 12; i++) 
+    {
+        var a = ab.clone();
+        var col = i%3;
+        var row = Math.floor(i/3);
+        var startPosZ = -4;
+        var startPosX = -4;
+        a.position.set(startPosX + row*4, 0, startPosZ + col*4);
+        this.afterburnersOuter.add(a);
+    }
+    
+    afterburners.add(this.afterburnersOuter);
+    
+    // create middle afterburner
+    var abMidGeom = new THREE.BoxGeometry(12, 4, 2);
+    abMidGeom.applyMatrix(new THREE.Matrix4().makeTranslation(-6,0,0));
+    var abMidTop = new THREE.Mesh(abMidGeom, abMat);
+    var abMidBot = abMidTop.clone();
+    abMidTop.position.set(-4, 6, 6);
+    abMidBot.position.set(-4, -6, -6);
+    afterburners.add(abMidTop);
+    afterburners.add(abMidBot);
+    
+    
 };
+
+Rocket.prototype.updateAfterburners = function() {
+    // get the afterburners
+    var afterburners = this.afterburnersOuter.children;
+    
+    // update their angles
+    var length = afterburners.length;
+    for(var i = 0; i < length; i++)
+    {
+        var aburn = afterburners[i];
+        // each afterburner element will scale on a cyclical basis
+        // between 75% and 100%. Adjust these values
+        aburn.scale.y = .75 + Math.cos(this.angleBurners+i/3) * 0.25;
+    }
+    
+    // increment the angle for the next frame
+    this.angleBurners += 0.19;
+}
+
 
 // Let there be a place for the vehicle
 Sky = function()
