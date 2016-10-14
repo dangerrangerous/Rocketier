@@ -1,3 +1,5 @@
+// Code goes here
+
 var Colors =
 {
     darkBrown: 0x23190F,
@@ -100,6 +102,10 @@ shadowLight.shadow.camera.far = 1000;
 // define resolution of the shadow, higher = more performance cost
 shadowLight.shadow.mapSize.width = 2048;
 shadowLight.shadow.mapSize.height = 2048;
+
+// an ambient light modifies the global color of a scene and makes the shadows softer
+ambientLight = new THREE.AmbientLight(0xdc8874, .5);
+scene.add(ambientLight);
 
 // add lights to scene to activate them
 scene.add(hemisphereLight);
@@ -305,7 +311,7 @@ Sky = function()
         c.mesh.rotation.z = a + Math.PI / 2;
 
         // position clouds at random depths within the scene
-        c.mesh.position.z = -400 - Math.random() * 400;
+        c.mesh.position.z = -300 - Math.random() * 400;
 
         // we also set random scale for each cloud
         // note: all of these randoms, PI's, and divisions could be optimized
@@ -326,6 +332,30 @@ Sea = function()
     // rotate the geometry on teh x axis
     geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI/2));
 
+    // merge vertices to ensure continuity...?
+    geometry.mergeVertices();
+    var length = geometry.vertices.length;
+    
+    // store new data associated with each vertex in an array
+    this.waves = [];
+    
+    for(var i = 0; i < length; i++) {
+        // get each vertex
+        var vertex = geometry.vertices[i];
+        
+        // store the data associated with vertices
+        this.waves.push({y:vertex.y,
+                         x:vertex.x,
+                         z:vertex.z,
+                         // random angle... (stahp)
+                         ang:Math.random() * Math.PI*2,
+                         // a random distance
+                         amp:5 + Math.random() * 15,
+                         // random speed in range
+                         speed:0.016 + Math.random() * 0.032
+                    });
+    }; 
+
     // create material
     var material = new THREE.MeshPhongMaterial(
     {
@@ -340,6 +370,34 @@ Sea = function()
 
     // allow sea to receive shadows
     this.mesh.receiveShadow = true;
+
+    Sea.prototype.moveWaves = function() 
+    {
+    // get the vertices
+    var verts = this.mesh.geometry.vertices;
+    var vertsLength = verts.length;
+    
+    for(var i = 0; i < vertsLength; i++) 
+    {
+        var v = verts[i];
+        
+        // get the data associated with it
+        var vprops = this.waves[i];
+        
+        // update the position of the vertex
+        v.x = vprops.x + Math.cos(vprops.ang) * vprops.amp;
+        v.y = vprops.y + Math.sin(vprops.ang) * vprops.amp;
+        
+        vprops.ang += vprops.speed;
+    }
+    
+    // tell renderer that the geometry has changed. 
+    this.mesh.geometry.verticesNeedsUpdate=true;
+    
+    sea.mesh.rotation.z += 0.005;
+}
+
+
 }
 
 // Let the sea fill the sky
@@ -352,10 +410,7 @@ Cloud = function()
     var geometry = new THREE.BoxGeometry(20, 20, 20);
 
     // create a material
-    var material = new THREE.MeshPhongMaterial(
-        {
-        color:Colors.white,
-        });
+    var material = new THREE.MeshPhongMaterial({color:Colors.white, shading: THREE.FlatShading});
 
     // duplicate the geometry a random number of times
     var nBlocs = 3 + Math.floor(Math.random() * 3);
@@ -424,6 +479,9 @@ function loop()
     // render the scene
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
+    
+    rocket.updateAfterburners();
+    sea.moveWaves();
 }
 /*
 // TODO:
@@ -441,8 +499,8 @@ ExhaustPlume = function()
 function updateRocket()
 {
     // normalize rocket position, play with these values
-    var targetY = normalize(mousePos.y, -.75, .75, 25, 175);
-    var targetX = normalize(mousePos.x, -.75, .75, -100, 100);
+    var targetY = normalize(mousePos.y, -0.55, .75, 25, 400);
+    var targetX = normalize(mousePos.x, -0.75, .75, -100, 100);
     
     // update rocket's position
     rocket.mesh.position.y = targetY;
