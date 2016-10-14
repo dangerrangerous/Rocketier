@@ -40,7 +40,7 @@ function createScene()
         nearPlane,
         farPlane
         );
-    scene.fog = new THREE.Fog(0xf7d9aa, 100, 950);
+    scene.fog = new THREE.Fog(0xc2d7f9, 100, 950);
     // set position of camera
     camera.position.x = 0;
     camera.position.y = 200;
@@ -104,7 +104,7 @@ shadowLight.shadow.mapSize.width = 2048;
 shadowLight.shadow.mapSize.height = 2048;
 
 // an ambient light modifies the global color of a scene and makes the shadows softer
-ambientLight = new THREE.AmbientLight(0xdc8874, .5);
+ambientLight = new THREE.AmbientLight(0xe89dcc, .5);
 scene.add(ambientLight);
 
 // add lights to scene to activate them
@@ -119,6 +119,9 @@ var Rocket = function()
 {
     this.mesh = new THREE.Object3D();
     this.mesh.name = "rocket";
+    this.angleAfterburners=0;
+
+
     // create fuselage
     var geomFuselage = new THREE.BoxGeometry(60, 50, 50, 1, 1, 1);
     var matFuselage = new THREE.MeshPhongMaterial({color: Colors.white, shading: THREE.FlatShading});
@@ -370,9 +373,10 @@ Sea = function()
 
     // allow sea to receive shadows
     this.mesh.receiveShadow = true;
+}
 
-    Sea.prototype.moveWaves = function() 
-    {
+Sea.prototype.moveWaves = function() 
+{
     // get the vertices
     var verts = this.mesh.geometry.vertices;
     var vertsLength = verts.length;
@@ -392,13 +396,11 @@ Sea = function()
     }
     
     // tell renderer that the geometry has changed. 
-    this.mesh.geometry.verticesNeedsUpdate=true;
+    this.mesh.geometry.verticesNeedUpdate=true;
     
     sea.mesh.rotation.z += 0.005;
 }
 
-
-}
 
 // Let the sea fill the sky
 Cloud = function()
@@ -472,16 +474,20 @@ function loop()
 {
     // TODO: create rocket thrust effect
      updateRocket();
+     rocket.updateAfterburners();
+     sea.moveWaves();
+     
     // rotate some meshes        
-    sea.mesh.rotation.z += .005;
+    // sea.mesh.rotation.z += .005;
+    
     sky.mesh.rotation.z += 0.01;
    
     // render the scene
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
     
-    rocket.updateAfterburners();
-    sea.moveWaves();
+
+
 }
 /*
 // TODO:
@@ -502,13 +508,19 @@ function updateRocket()
     var targetY = normalize(mousePos.y, -0.55, .75, 25, 400);
     var targetX = normalize(mousePos.x, -0.75, .75, -100, 100);
     
+    // movement smoothing
+    rocket.mesh.position.y += (targetY-rocket.mesh.position.y) * 0.1;
+    rocket.mesh.position.x += (targetX-rocket.mesh.position.x) * 0.1;
+
     // update rocket's position
-    rocket.mesh.position.y = targetY;
-    rocket.mesh.position.x = targetX;
+    // rocket.mesh.position.y = targetY;
+    // rocket.mesh.position.x = targetX;
     // TODO: thruster animation goes here
 
+    
 }
 
+// double check these 
 function normalize(v, vmin, vmax, tmin, tmax)
 {
     var nv = Math.max(Math.min(v, vmax), vmin);
