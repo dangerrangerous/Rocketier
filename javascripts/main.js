@@ -1,12 +1,15 @@
 // Code goes here
 
+// Code goes here
+
 var Colors =
 {
     darkBrown: 0x23190F,
     brown: 0xA52A2A,
     red: 0xF72C25,
     yellow: 0xF9C764,
-    blue: 0xA9E5BB,
+    blue: 0xa1e5ea,
+    seafoam: 0xA9E5BB,
     white: 0xFAFAC8,
     pink: 0xBA55D3,
     grey: 0xA9A9A9,
@@ -112,6 +115,71 @@ scene.add(hemisphereLight);
 scene.add(shadowLight);
 }
 
+var Afterburner = function() 
+{
+  this.mesh = new THREE.Object3D();
+  this.mesh.name = "afterburner";
+  this.angleAfterburners=0;
+
+  // create afterburner element
+  var abGeom = new THREE.BoxGeometry(6,6,6);
+  var abMat = new THREE.MeshPhongMaterial({color: Colors.yellow, shading: THREE.FlatShading});
+  var ab = new THREE.Mesh(abGeom, abMat);
+  // align shape of afterburner to it's bottom boundary so it will scale easier
+  ab.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,2,0));
+  // create container for the afterburner
+  var afterburners = new THREE.Object3D();
+    
+  // create a container for the outside burners, these will be animated
+  this.afterburnersOuter = new THREE.Object3D();
+    
+  // create the outside burners and position them on a grid
+  for(var i = 0; i < 12; i++) 
+  {
+    var a = ab.clone();
+    var col = i%3;
+    var row = Math.floor(i/3);
+    var startPosZ = -4;
+    var startPosX = -20;
+    a.position.set(startPosX + row*4, 0, startPosZ + col*4);
+    this.afterburnersOuter.add(a);
+  }
+  
+  afterburners.add(this.afterburnersOuter);
+    
+    // create middle afterburner
+    var abMidGeom = new THREE.BoxGeometry(12, 4, 2);
+    abMidGeom.applyMatrix(new THREE.Matrix4().makeTranslation(-6,0,0));
+    var abMidTop = new THREE.Mesh(abMidGeom, abMat);
+    var abMidBot = abMidTop.clone();
+    abMidTop.position.set(-4, 6, 6);
+    abMidBot.position.set(-4, -6, -6);
+    afterburners.add(abMidTop);
+    afterburners.add(abMidBot);
+    
+    this.mesh.add(afterburners);
+}
+
+Afterburner.prototype.updateAfterburners = function() 
+{
+    // get the afterburners
+    var afterburners = this.afterburnersOuter.children;
+    
+    // update their angles
+    var length = afterburners.length;
+    for(var i = 0; i < length; i++)
+    {
+        var aburn = afterburners[i];
+        // each afterburner element will scale on a cyclical basis
+        // between 75% and 100%. Adjust these values
+        aburn.scale.y = 0.75 + Math.cos(this.angleBurners+i/3) * 0.25;
+    }
+    
+    // increment the angle for the next frame
+    this.angleBurners += 0.19;
+}
+
+
 // Let there be a vehicle
 // note: we can upload external 3D models... programming primitives
 // feels_bad_man.jpg
@@ -119,9 +187,7 @@ var Rocket = function()
 {
     this.mesh = new THREE.Object3D();
     this.mesh.name = "rocket";
-    this.angleAfterburners=0;
-
-
+    
     // create fuselage
     var geomFuselage = new THREE.BoxGeometry(60, 50, 50, 1, 1, 1);
     var matFuselage = new THREE.MeshPhongMaterial({color: Colors.white, shading: THREE.FlatShading});
@@ -131,7 +197,7 @@ var Rocket = function()
     this.mesh.add(fuselage);
     
     // create nose cone
-    var geomNoseCone = new THREE.BoxGeometry(20, 50, 50, 1, 1, 1);
+    var geomNoseCone = new THREE.BoxGeometry(20, 52, 52, 1, 1, 1);
     var matNoseCone = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
     var noseCone = new THREE.Mesh(geomNoseCone, matNoseCone);
     noseCone.position.x = 30;
@@ -199,7 +265,7 @@ var Rocket = function()
     tailFinSides.receiveShadow = true;
     this.mesh.add(tailFinSides);
 
-    var matTailFinSides = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
+    // var matTailFinSides = new THREE.MeshPhongMaterial({color: Colors.red, shading: THREE.FlatShading});
     var tailFinFarSides = new THREE.Mesh(geomTailFinSides, matTailFin);
     tailFinFarSides.position.set(-38, 0, -20);
     tailFinFarSides.rotation.y = 20;
@@ -225,64 +291,15 @@ var Rocket = function()
     windowFrame.receiveShadow = true;
     this.mesh.add(windowFrame);
     
-    // create afterburner
-    // afterburner element
-    var abGeom = new THREE.BoxGeometry(6,6,6);
-    var abMat = new THREE.MeshPhongMaterial({color: Colors.yellow, shading: THREE.FlatShading});
-    var ab = new THREE.Mesh(abGeom, abMat);
-    // align shape of afterburner to it's bottom boundary so it will scale easier
-    ab.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,2,0));
-    
-    // create container for the afterburner
-    var afterburners = new THREE.Object3D();
-    
-    // create a container for the outside burners, these will be animated
-    this.afterburnersOuter = new THREE.Object3D();
-    
-    // create the outside burners and position them on a grid
-    for(var i = 0; i < 12; i++) 
-    {
-        var a = ab.clone();
-        var col = i%3;
-        var row = Math.floor(i/3);
-        var startPosZ = -4;
-        var startPosX = -4;
-        a.position.set(startPosX + row*4, 0, startPosZ + col*4);
-        this.afterburnersOuter.add(a);
-    }
-    
-    afterburners.add(this.afterburnersOuter);
-    
-    // create middle afterburner
-    var abMidGeom = new THREE.BoxGeometry(12, 4, 2);
-    abMidGeom.applyMatrix(new THREE.Matrix4().makeTranslation(-6,0,0));
-    var abMidTop = new THREE.Mesh(abMidGeom, abMat);
-    var abMidBot = abMidTop.clone();
-    abMidTop.position.set(-4, 6, 6);
-    abMidBot.position.set(-4, -6, -6);
-    afterburners.add(abMidTop);
-    afterburners.add(abMidBot);
+    // afterburner
+    this.afterburner = new Afterburner();
+    this.afterburner.mesh.position.set(-40,0,0);
+    this.mesh.add(this.afterburner.mesh);
     
     
 };
 
-Rocket.prototype.updateAfterburners = function() {
-    // get the afterburners
-    var afterburners = this.afterburnersOuter.children;
-    
-    // update their angles
-    var length = afterburners.length;
-    for(var i = 0; i < length; i++)
-    {
-        var aburn = afterburners[i];
-        // each afterburner element will scale on a cyclical basis
-        // between 75% and 100%. Adjust these values
-        aburn.scale.y = .75 + Math.cos(this.angleBurners+i/3) * 0.25;
-    }
-    
-    // increment the angle for the next frame
-    this.angleBurners += 0.19;
-}
+
 
 
 // Let there be a place for the vehicle
@@ -374,6 +391,7 @@ Sea = function()
     // allow sea to receive shadows
     this.mesh.receiveShadow = true;
 }
+
 
 Sea.prototype.moveWaves = function() 
 {
@@ -473,21 +491,19 @@ function createSky()
 function loop()
 {
     // TODO: create rocket thrust effect
-     updateRocket();
-     rocket.updateAfterburners();
-     sea.moveWaves();
-     
+    updateRocket();
+    rocket.afterburner.updateAfterburners();
+    updateCameraFOV();
+    sea.moveWaves();
+
     // rotate some meshes        
-    // sea.mesh.rotation.z += .005;
-    
+    sea.mesh.rotation.z += .005;
     sky.mesh.rotation.z += 0.01;
-   
+    
     // render the scene
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
     
-
-
 }
 /*
 // TODO:
@@ -502,6 +518,7 @@ ExhaustPlume = function()
 } 
 */
 
+
 function updateRocket()
 {
     // normalize rocket position, play with these values
@@ -511,7 +528,8 @@ function updateRocket()
     // movement smoothing
     rocket.mesh.position.y += (targetY-rocket.mesh.position.y) * 0.1;
     rocket.mesh.position.x += (targetX-rocket.mesh.position.x) * 0.1;
-
+    rocket.mesh.rotation.z = (targetY - rocket.mesh.position.y) * 0.0128;
+    rocket.mesh.rotation.x = (rocket.mesh.position.y - targetY) * 0.0064;
     // update rocket's position
     // rocket.mesh.position.y = targetY;
     // rocket.mesh.position.x = targetX;
@@ -520,7 +538,12 @@ function updateRocket()
     
 }
 
-// double check these 
+function updateCameraFOV()
+{
+  camera.fov = normalize(mousePos.x, -1,1,40,80);
+  camera.updateProjectionMatrix();
+}
+
 function normalize(v, vmin, vmax, tmin, tmax)
 {
     var nv = Math.max(Math.min(v, vmax), vmin);
